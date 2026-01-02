@@ -5,16 +5,19 @@ const cors = require("cors")
 
 // Create the Express app
 const app = express()
-// Set the port number
-const PORT = 3000
+const PORT = process.env.PORT || 3000
 
 // MIDDLEWARE SETUP
 // Let browser send JSON data to server
 app.use(express.json())
-// Let browser make requests from different origins (localhost:8080 to localhost:3000)
+// Let browser make requests from different origins
 app.use(cors())
 // Serve static files from the 'public' folder (HTML, CSS, JS)
 app.use(express.static("public"))
+
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "healthy" })
+})
 
 // TEST ROUTE - check if server is working
 app.get("/api/test", (req, res) => {
@@ -24,8 +27,7 @@ app.get("/api/test", (req, res) => {
     })
 })
 
-// START THE SERVER
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`)
-    console.log(`Press Ctrl+C to stop`)
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`)
+    console.log(`Health check available at /health`)
 })
