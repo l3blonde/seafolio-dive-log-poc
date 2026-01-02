@@ -4,7 +4,7 @@
 Thomas More Mechelen 2026  
 Final Product Project  
 POC (Proof of Concept) for Bluetooth Dive Log Sync Feature
-Live POC:
+Live POC: https://dive-log-app-w42fi.ondigitalocean.app/
 
 ## About This POC
 We built a browser app that connects to dive computers
@@ -45,6 +45,8 @@ Modular code made debugging way easier.
 **What Went Wrong**
 Took ages to learn needed code patterns
 and figure out data flow structure.
+Chrome/Edge/Opera only,
+Firefox & Safari don't support Web Bluetooth yet.
 WebStorm shows unresolved variable warnings
 for navigator.bluetooth
 but code works fine.
@@ -54,7 +56,6 @@ formats so mock data was the only realistic option
 for POC without manufacturer partnerships.
 Can only test with mock data
 since we don't own real dive computers.
-Chrome/Edge only (Firefox doesn't support Web Bluetooth yet).
 
 ## Tech Stack
 **Backend:** Node.js v18 + Express.js  

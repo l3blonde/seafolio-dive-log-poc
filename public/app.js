@@ -16,36 +16,36 @@ document.addEventListener("DOMContentLoaded", () => {
             "Web Bluetooth is not supported in this browser. Please use Chrome, Edge, or Opera on desktop.",
             "error",
         )
-        document.getElementById("scanBtn").disabled = true
+        document.getElementById("scanRealBtn").disabled = true
+        document.getElementById("scanMockBtn").disabled = true
         return
     }
 
-    const scanBtn = document.getElementById("scanBtn")
+    const scanRealBtn = document.getElementById("scanRealBtn")
+    const scanMockBtn = document.getElementById("scanMockBtn")
     const backFromConnecting = document.getElementById("backFromConnecting")
     const backFromLogs = document.getElementById("backFromLogs")
 
-    scanBtn.addEventListener("click", async () => {
-        console.log("Scanning for devices...")
-
+    scanRealBtn.addEventListener("click", async () => {
+        console.log("User chose real device scan")
         try {
-            const useMock = confirm(
-                "Do you want to test with a MOCK dive computer (Shearwater Perdix AI)?\n\n" +
-                "• Click OK to use mock device with dive logs\n" +
-                "• Click Cancel to scan for real BLE devices (JBL, smartwatch, etc.)",
-            )
-
-            if (useMock) {
-                console.log("User chose mock dive computer mode")
-                await connectToMockDevice()
-            } else {
-                console.log("User chose real device scan")
-                await scanRealDevices()
-            }
+            await scanRealDevices()
         } catch (error) {
             if (error.message.includes("cancel") || error.message.includes("User")) {
                 console.log("User cancelled device scan")
             }
             console.error("Bluetooth error:", error)
+            window.UI.showStatus(`Error: ${error.message}`, "error")
+            setTimeout(() => window.UI.showScanScreen(), 2000)
+        }
+    })
+
+    scanMockBtn.addEventListener("click", async () => {
+        console.log("User chose mock dive computer mode")
+        try {
+            await connectToMockDevice()
+        } catch (error) {
+            console.error("Mock device error:", error)
             window.UI.showStatus(`Error: ${error.message}`, "error")
             setTimeout(() => window.UI.showScanScreen(), 2000)
         }

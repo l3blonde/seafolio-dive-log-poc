@@ -23,7 +23,11 @@
                 </svg>
             </div>
             <p class="instructions">Connect your nearby device</p>
-            <button id="scanBtn" class="btn-primary">Scan for Devices</button>
+            <!-- Replaced single button with two separate buttons to fix mobile Chrome user gesture requirement -->
+            <div class="button-group">
+                <button id="scanRealBtn" class="btn-primary">Scan Bluetooth Devices</button>
+                <button id="scanMockBtn" class="btn-secondary">Try Mock Demo</button>
+            </div>
             <div id="status" class="status"></div>
         </main>
     </div>
