@@ -33,9 +33,12 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             if (error.message.includes("cancel") || error.message.includes("User")) {
                 console.log("User cancelled device scan")
+                window.UI.showStatus("Scan cancelled. Click 'Scan Real Device' to try again.", false)
+                return
             }
+
             console.error("Bluetooth error:", error)
-            window.UI.showStatus(`Error: ${error.message}`, "error")
+            window.UI.showStatus("Could not connect to device. Please make sure Bluetooth is enabled and try again.", true)
             setTimeout(() => window.UI.showScanScreen(), 2000)
         }
     })
@@ -46,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
             await connectToMockDevice()
         } catch (error) {
             console.error("Mock device error:", error)
-            window.UI.showStatus(`Error: ${error.message}`, "error")
+            window.UI.showStatus("Could not load demo device. Please refresh the page and try again.", true)
             setTimeout(() => window.UI.showScanScreen(), 2000)
         }
     })
@@ -112,7 +115,7 @@ async function uploadDiveLogs() {
 
 async function sendLogsToBackend(deviceName, data, source) {
     try {
-        console.log(`[v0] Sending logs to backend from ${deviceName}`)
+        console.log(`Sending logs to backend from ${deviceName}`)
 
         const response = await fetch("/api/logs", {
             method: "POST",
@@ -129,14 +132,14 @@ async function sendLogsToBackend(deviceName, data, source) {
         const result = await response.json()
 
         if (result.success) {
-            console.log(`[v0] Backend sync successful: ${result.logsReceived} logs received`)
+            console.log(`Backend sync successful: ${result.logsReceived} logs received`)
             window.UI.updateBackendStatus("connected", `Synced ${result.logsReceived} logs`)
         } else {
-            console.error("[v0] Backend sync failed:", result.error)
-            window.UI.updateBackendStatus("error", "Sync failed")
+            console.error("Backend sync failed:", result.error)
+            window.UI.updateBackendStatus("error", "Server unavailable. Your data was not saved.")
         }
     } catch (error) {
-        console.error("[v0] Error sending logs to backend:", error)
+        console.error("Error sending logs to backend:", error)
         window.UI.updateBackendStatus("error", "Backend unavailable")
     }
 }
@@ -149,15 +152,15 @@ async function testServerConnection() {
         const data = await response.json()
 
         if (data.status === "healthy") {
-            console.log("[v0] Server health check passed:", data)
+            console.log("Server health check passed:", data)
             window.UI.showStatus("Server connected successfully!", "success")
             window.UI.updateBackendStatus("connected", "Server healthy")
         } else {
-            throw new Error("Server unhealthy")
+            throw new Error("The server is not responding. Please try again.")
         }
     } catch (error) {
-        console.error("[v0] Server connection failed:", error)
-        window.UI.showStatus("Server connection failed", "error")
+        console.error("Server connection failed:", error)
+        window.UI.showStatus("Could not connect to the server. Please check your internet connection.", "error")
         window.UI.updateBackendStatus("error", "Server offline")
     }
 }
