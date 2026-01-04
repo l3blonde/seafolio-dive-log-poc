@@ -1,127 +1,278 @@
-# Seadolio Dive App POC
-## Sync Dive Computer § Upload Dive Logs
+# Seafolio Dive Log App: Proof of Concept #1
+## Bluetooth Low Energy (BLE) Dive Computer Sync Feature
 **Ocean's 4 Team**  
-Thomas More Mechelen 2026  
+Thomas More College, Mechelen  
 Final Product Project  
-POC (Proof of Concept) for Bluetooth Dive Log Sync Feature
-Live POC: https://dive-log-app-w42fi.ondigitalocean.app/
+Prototype Testing: BLE Device Connection with Web Bluetooth API
+
+**Live POC:** https://seahorse-app-m2sil.ondigitalocean.app/
+
+---
 
 ## About This POC
-We built a browser app that connects to dive computers
-via Bluetooth and reads dive logs.
-Tested the whole flow with mock data
-since none of us own real dive computer hardware.
+This is a **proof of concept (POC)** for the Seafolio dive log app
+that tests whether we can sync dive computers to a web application
+using Bluetooth Low Energy (BLE) and transfer dive logs wirelessly.
 
-## What We Built
-Browser app with scan button that opens Bluetooth device picker.
-Pick a device and it connects.
-Shows mock Shearwater Perdix AI dive computer with 3 sample dive logs.
-Also tested with real Bluetooth devices like JBL headphones
-and smartwatches to prove the Web Bluetooth API actually works.
+The prototype demonstrates BLE device scanning, connection,
+GATT service reading, and dive log display in a browser-based
+Progressive Web App (PWA).
 
-## Our Journey
-The biggest challenge was testing without real hardware.
-We researched how dive computers work and found most brands
-like Suunto and Shearwater need manufacturer partnerships
-to access their proprietary GATT services and data formats.
-Can't just connect to any dive computer and read logs
-without knowing their custom protocols.
+---
 
-So we tested with what we had.
-Connected JBL Tune 520BT headphones
-to prove scanning works.
-Tried reading battery levels from smartwatches
-to prove GATT characteristic reading works.
-Then built mock dive computer mode
-with fake Shearwater Perdix AI data
-to test the complete flow from scan to display.
+## Problem We're Solving
+**The Challenge:**  
+Divers use dive computers to track their dives
+(depth, time, temperature, location).
 
-**What Went Right**  
-Web Bluetooth API works perfectly in Chrome.
-Tested with real BLE devices first to prove concept.
-Mock data approach let us test the complete system.
-Modular code made debugging way easier.
+After surfacing, they want to:
+- Upload dive logs to a digital logbook
+- Review dive logs
+- Keep all their dive history in one place
 
-**What Went Wrong**
-Took ages to learn needed code patterns
-and figure out data flow structure.
-Chrome/Edge/Opera only,
-Firefox & Safari don't support Web Bluetooth yet.
-WebStorm shows unresolved variable warnings
-for navigator.bluetooth
-but code works fine.
-Had to learn GATT services and characteristics from scratch.
-Realized every dive computer brand uses different proprietary
-formats so mock data was the only realistic option
-for POC without manufacturer partnerships.
-Can only test with mock data
-since we don't own real dive computers.
+**Current Solutions:**
+- Manual entry takes forever
+(typing in 20+ dive parameters per dive)
+- Desktop apps require USB cables and laptops
+(not convenient on dive boats)
+- Manufacturer apps only work with their own brand
+(Suunto app won't read Shearwater data)
 
-## Tech Stack
-**Backend:** Node.js v18 + Express.js  
-**Bluetooth:** Web Bluetooth API (GATT protocol)  
-**Styling:** Black and white only with css (POC focuses on functionality)  
-**Dev Tools:** WebStorm IDE + nodemon for auto restart
+**Our Goal:**  
+
+Build a web-based dive log app where divers can:
+1. Open the app
+2. Tap "Scan Devices"
+3. Select their dive computer
+4. Automatically sync all dive logs wirelessly/offline
+5. View and edit their dives immediately
+
+---
+
+## Purpose of This Prototype
+**Primary Goal:**  
+
+Quickly test if BLE device connection works with a PWA using
+the Web Bluetooth API in desktop Chrome/Edge browsers.
+
+**What We Tested:**
+- Can we scan for nearby BLE devices from a browser?
+- Can we connect to a selected device?
+- Can we read GATT services and characteristics?
+- Can we parse and display the data?
+- Does it work on mobile browsers?
+
+**Testing Process:**  
+
+Several prototypes were tested by different team members
+of Ocean's 4 during the project.
+
+We tested with:
+- Mock dive computer data (simulated Shearwater Perdix AI)
+- Real BLE devices we already owned (JBL headphones, smartwatches)
+- Desktop Chrome on Windows/Mac
+- Mobile Chrome on Android (Samsung phones)
+
+---
+
+## Challenges We Faced
+### **Challenge 1: No Access to Real Dive Computers**
+None of our team members own dive computers.
+We couldn't test with real hardware.
+
+**Solution:** Used mock data to simulate a Shearwater Perdix AI
+dive computer with 3 sample dive logs.
+Tested BLE connection
+with devices we already owned (JBL headphones, smartwatches)
+to prove the Web Bluetooth API works.
+
+---
+
+### **Challenge 2: Proprietary BLE Protocols**
+Every dive computer manufacturer uses custom GATT service
+UUIDs and proprietary data formats. We can't just connect
+and read logs without knowing their protocols.
+
+**Research findings:**
+- Shearwater uses encrypted GATT characteristics
+(requires Shearwater Cloud partnership)
+- Suunto uses proprietary Suunto App protocol (locked)
+- Oceanic/Aqualung requires DiverLog+ partnership
+- Open source `libdivecomputer` library exists
+(desktop C library, not browser-compatible)
+
+**Solution:** Focused POC on proving the connection
+and data reading mechanisms work. Documented that
+manufacturer partnerships are required for production.
+
+---
+
+### **Challenge 3: Browser Compatibility**
+Web Bluetooth API is not supported in all browsers,
+especially mobile Safari (iOS blocks it completely).
+
+**What works:**
+- ✅ Desktop Chrome/Edge/Opera (fully supported)
+- ✅ Android Chrome/Edge/Opera (requires Location ON + Chrome permissions)
+- ❌ iOS Safari (Apple blocks Web Bluetooth entirely)
+- ❌ Firefox (doesn't support Web Bluetooth)
+- ❌ Samsung Internet Browser (doesn't support Web Bluetooth)
+
+**Solution:** Documented browser requirements. For production,
+we'd build native iOS app to bypass Safari limitations.
+
+---
+
+### **Technical Challenge: Figuring Out GATT Protocol**
+None of us had worked with Bluetooth Low Energy before.
+We had to learn:
+- GATT (Generic Attribute Profile) structure
+- Services, characteristics, UUIDs
+- Tested with Android Michael Kors smartwatches,
+- BLE hardware (yes we can scan and find them)
+- But their proprietary data is locked
+
+**Solution:** As consumer device (smartwatch, fitness tracker, dive computer)
+locks their valuable data. Real data needs manufacturer permission,
+so  we will build up to dive comps partnerships later.
+
+---
+
+## Solution Found
+### **MVP Strategy (Current):**
+We will use a **PWA with manual entry**
+for dive logs as the primary feature:
+- Build with React/Next.js (modern web tech)
+- Users manually enter their dive logs (depth, time, location, etc.)
+- Cloud sync stores logs in database
+- Works on all devices and browsers
+- No Bluetooth complexity
+
+### **Production Strategy (Future):**
+Use a **hybrid approach** combining multiple upload methods:
+
+**Method 1: BLE Sync (Native Apps)**
+- Build native iOS (Swift) and Android (Kotlin) apps
+- Partner with dive computer manufacturers for protocol access
+- Implement BLE sync for supported brands
+- Premium feature for paid users
+
+**Method 2: File Upload (Web App)**
+- Users export dive logs from desktop apps (Subsurface, MacDive)
+- Upload .XML or .JSON files to Seafolio web app
+- Just a standard file picker: `<input type="file" accept=".xml,.json">
+- User browses to wherever they saved it
+- Works with all dive computer brands
+- Free feature
+
+**Method 3: Manual Entry (Web App)**
+- Users type in dive details manually
+- Always available as fallback
+- Free feature
+
+**Method 4: Hybrid Manual Entry + File Upload**
+- File upload + manual entry
+- No BLE needed (avoid locked dive computers)
+- Much simpler to implement
+
+---
 
 ## New Technologies We Learned
-**Web Bluetooth API:**
-First time using browser Bluetooth.
-Had to learn GATT services, characteristics,
-UUIDs, and how devices expose data.
-Tested with real devices like JBL headphones and smartwatches.
+**1. Web Bluetooth API**  
+First time using browser-based Bluetooth.
+Learned how to scan for devices, connect,
+and read data directly from JavaScript.
 
-## New Skills We Learned
-**Don't Assume It - Prove It**
-**Organize Fully Functional Team** organized our team around functionalities
-research tasks, and problem solving, not just functions, so we build code that works
-**Good Design is Easier to Change than Bad Design:**
-**Take Small Steps - Always:** use tracer bullets to plan
-**Dev Tools:** WebStorm IDE + nodemon for auto restart
+**2. BLE & GATT Protocol**  
+Learned how Bluetooth Low Energy devices expose data through:
+- Services (categories of data, e.g., Battery Service 0x180F)
+- Characteristics (individual data points, e.g., Battery Level 0x2A19)
+- UUIDs (unique identifiers for standard and custom services)
 
-**GATT Protocol:**
-Generic Attribute Profile.
-How Bluetooth devices expose data through
-services and characteristics.
-Battery service UUID 0x180F,
-Device Info service UUID 0x180A, etc.
+**3. Async/Await JavaScript**  
+Heavy use of asynchronous code for Bluetooth connections, GATT reads,
+and UI updates. Learned proper promise handling and error boundaries.
 
-**Async JavaScript:**
-Lots of await for Bluetooth connections.
-Finally understand promises properly.
+**4. Module Pattern**  
+Split code into separate modules (BLE, UI, MOCK_DATA) instead of one
+massive file. Learned orthogonality principle for independent, reusable code.
 
-**Orthogonality/Module Pattern:**
-Split code into ble.js, ui.js, mock-data.js
-instead of one massive file
+**5. Tracer Bullet Programming**  
+Broke project into small, testable steps. Tested each feature
+in browser console before moving to next step.
 
-## Features
-Scan for nearby Bluetooth devices via browser popup.
-Connect to selected device nearby.
-Read battery level and device info from real smartwatches.
-Mock dive computer mode simulates Shearwater Perdix AI with 3 fake dive logs.
-Display dive logs with location, depth, duration, temperature.
+---
 
-## Future Production Improvements
-Partner with dive computer manufacturers to access proprietary GATT services.
-Test with actual dive computers like Suunto EON Core or Shearwater Perdix.
-Parse real GATT binary data from dive computer characteristics.
-Build backend API with database storage.
-Add user accounts and authentication.
-Deploy with proper HTTPS.
-Handle different dive computer brands with their custom data formats.
-Build native apps with React Native after PWA is done.
+## Features We Implemented
+[X]Scan for nearby Bluetooth devices via browser popup  
+[X]Two-button approach: "Scan Bluetooth Devices" or "Try Mock Demo"  
+[X]Connect to selected BLE device with animated connecting screen  
+[X]Read battery level and device info from real smartwatches/headphones  
+[X]Mock dive computer mode simulates Shearwater Perdix AI with 3 fake dive logs  
+[X]Display dive logs with location, depth, duration, temperature, PSI  
+[X]Mobile responsive design (works on phones, tablets, desktops)  
+[X]Browser compatibility detection (warns if Web Bluetooth not supported)  
+[X]Error handling for connection failures and permission denials
 
-## Quick Start
-Install dependencies: `npm install`  
-Start server: `npm start` or `npm run dev`  
-Open browser: http://localhost:3000  
-Click scan button and choose mock dive computer to see demo.
+---
 
-## Project Structure
-docs folder has all documentation and tracer bullet plan.
-public folder has frontend HTML CSS JS. server.js runs Express backend.
-Follow tracer bullet plan step by step with checkboxes.
+**Tech Stack:**
+**Frontend:** Vanilla JavaScript (ES6 modules), HTML5, CSS3,
+Web Bluetooth API
+**Backend:** Node.js with Express.js
+**API:** RESTful endpoints (JSON)
+Frontend sends requests → Backend responds with JSON data
+(API = the endpoints in server.js that accept HTTP requests
+and return JSON responses. It's the communication layer between
+frontend (browser) and backend Node.js server)
+**Deployment:** Digital Ocean
 
-## Team
-Ocean's 4  
-Thomas More College  
-2025 Final Product Project
+---
+
+**Key Files:**
+- `app.js` - Controller (decides mock vs real, handles button clicks)
+- `ble.js` - All BLE/GATT communication
+- `ui.js` - All screen transitions and display logic
+- `mock-data.js` - Test data
+- `server.js` - HTTP server
+---
+
+## POC Test Results
+
+**What Worked:**
+- Web Bluetooth API is powerful and works reliably in supported browsers
+- Mock data approach let us test complete system without expensive hardware
+- Modular code architecture made debugging easier
+- Tracer bullet development kept us focused on testable milestones
+- Two-button approach solved mobile gesture chain issues
+
+**What Was Challenging:**
+- Learning GATT protocol from scratch (services, characteristics, UUIDs)
+- Understanding dive computer proprietary protocols and manufacturer restrictions
+- Browser compatibility limitations (especially iOS blocking)
+- Mobile permission requirements (Location + Nearby devices)
+- Testing without real dive computer hardware
+
+**What We'd Do Differently for Production:**
+- Start with native apps (avoid iOS Web Bluetooth limitations)
+- Prioritize manufacturer partnerships early (unlock real device protocols)
+- Implement hybrid approach (BLE + file upload + manual entry) from day one
+- Build backend database first (currently frontend-only POC)
+- Add comprehensive error handling for all BLE connection edge cases
+
+**Our Recommendation:**
+
+**MVP should focus on manual entry + file upload.**
+
+BLE sync is technically feasible but requires:
+- Native iOS/Android apps (3+ months development)
+- Manufacturer partnerships (legal agreements, API access + tell us the GAT UUIDs)
+- Real dive comp for testing (€500)
+- Complex data parsing for multiple brands
+
+**BLE sync should be a Phase 2 premium feature
+after MVP proves market fit.**
+
+---
+
+

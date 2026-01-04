@@ -115,6 +115,24 @@ const UI = {
 
         logsList.innerHTML = html
     },
+
+    updateBackendStatus: (status, message) => {
+        const backendStatusDiv = document.getElementById("backendStatus")
+        const statusText = backendStatusDiv.querySelector(".status-text")
+
+        // Remove previous status classes
+        backendStatusDiv.classList.remove("connected", "error")
+
+        if (status === "connected") {
+            backendStatusDiv.classList.add("connected")
+            statusText.textContent = `Backend: ${message}`
+        } else if (status === "error") {
+            backendStatusDiv.classList.add("error")
+            statusText.textContent = `Backend: ${message}`
+        } else {
+            statusText.textContent = `Backend: ${message}`
+        }
+    },
 }
 
 window.UI = UI

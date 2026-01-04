@@ -1,5 +1,4 @@
 // Mock dive computer data for PoC testing
-// Since we don't have real $500 dive computer hardware, we simulate realistic dive logs
 
 const MOCK_DIVE_COMPUTERS = [
     {

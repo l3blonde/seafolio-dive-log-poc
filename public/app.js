@@ -2,7 +2,6 @@
 const MOCK_CONNECTION_DELAY_MS = 2000
 const REAL_CONNECTION_DELAY_MS = 1500
 const SUCCESS_MESSAGE_DELAY_MS = 1000
-const UPLOAD_SIMULATION_DELAY_MS = 1500
 
 // Helper function to avoid Promise repetition
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -25,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const scanMockBtn = document.getElementById("scanMockBtn")
     const backFromConnecting = document.getElementById("backFromConnecting")
     const backFromLogs = document.getElementById("backFromLogs")
+    const testConnectionBtn = document.getElementById("testConnectionBtn")
 
     scanRealBtn.addEventListener("click", async () => {
         console.log("User chose real device scan")
@@ -59,13 +59,15 @@ document.addEventListener("DOMContentLoaded", () => {
         window.UI.showScanScreen()
     })
 
+    testConnectionBtn.addEventListener("click", async () => {
+        await testServerConnection()
+    })
+
     document.addEventListener("click", async (e) => {
         if (e.target.id === "uploadBtn") {
             await uploadDiveLogs()
         }
     })
-
-    void testServerConnection()
 })
 
 async function connectToMockDevice() {
@@ -74,6 +76,9 @@ async function connectToMockDevice() {
         window.UI.showConnectingScreen(mockComputer.name)
         await delay(MOCK_CONNECTION_DELAY_MS)
         const mockLogs = window.MOCK_DATA.logs
+
+        await sendLogsToBackend(mockComputer.name, mockLogs, "mock")
+
         window.UI.showDiveLogs(mockLogs, mockComputer.name)
     } catch (error) {
         console.error("Mock device error:", error)
@@ -93,6 +98,8 @@ async function scanRealDevices() {
     const server = await window.BLE.connect(device)
     const gattData = await window.BLE.readGATTData(server)
 
+    await sendLogsToBackend(device.name || "Unknown Device", gattData, "bluetooth")
+
     window.UI.showStatus("Connected successfully!")
     await delay(SUCCESS_MESSAGE_DELAY_MS)
 
@@ -103,12 +110,54 @@ async function uploadDiveLogs() {
     window.UI.showStatus("Upload functionality will be added in production version with real dive computer.", "info")
 }
 
+async function sendLogsToBackend(deviceName, data, source) {
+    try {
+        console.log(`[v0] Sending logs to backend from ${deviceName}`)
+
+        const response = await fetch("/api/logs", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                device: deviceName,
+                logs: Array.isArray(data) ? data : [data],
+                source: source,
+            }),
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+            console.log(`[v0] Backend sync successful: ${result.logsReceived} logs received`)
+            window.UI.updateBackendStatus("connected", `Synced ${result.logsReceived} logs`)
+        } else {
+            console.error("[v0] Backend sync failed:", result.error)
+            window.UI.updateBackendStatus("error", "Sync failed")
+        }
+    } catch (error) {
+        console.error("[v0] Error sending logs to backend:", error)
+        window.UI.updateBackendStatus("error", "Backend unavailable")
+    }
+}
+
 async function testServerConnection() {
     try {
-        const response = await fetch("http://localhost:3000/api/test")
+        window.UI.showStatus("Testing server connection...", "info")
+
+        const response = await fetch("/health")
         const data = await response.json()
-        console.log("Server connected:", data)
+
+        if (data.status === "healthy") {
+            console.log("[v0] Server health check passed:", data)
+            window.UI.showStatus("Server connected successfully!", "success")
+            window.UI.updateBackendStatus("connected", "Server healthy")
+        } else {
+            throw new Error("Server unhealthy")
+        }
     } catch (error) {
-        console.error("Server connection failed:", error)
+        console.error("[v0] Server connection failed:", error)
+        window.UI.showStatus("Server connection failed", "error")
+        window.UI.updateBackendStatus("error", "Server offline")
     }
 }
