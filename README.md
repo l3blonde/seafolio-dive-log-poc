@@ -112,11 +112,11 @@ Web Bluetooth API is not supported in all browsers,
 especially mobile Safari (iOS blocks it completely).
 
 **What works:**
-- ✅ Desktop Chrome/Edge/Opera (fully supported)
-- ✅ Android Chrome/Edge/Opera (requires Location ON + Chrome permissions)
-- ❌ iOS Safari (Apple blocks Web Bluetooth entirely)
-- ❌ Firefox (doesn't support Web Bluetooth)
-- ❌ Samsung Internet Browser (doesn't support Web Bluetooth)
+OK Desktop Chrome/Edge/Opera (fully supported)
+OK Android Chrome/Edge/Opera (requires Location ON + Chrome permissions)
+X iOS Safari (Apple blocks Web Bluetooth entirely)
+X Firefox (doesn't support Web Bluetooth)
+X Samsung Internet Browser (doesn't support Web Bluetooth)
 
 **Solution:** Documented browser requirements. For production,
 we'd build native iOS app to bypass Safari limitations.
