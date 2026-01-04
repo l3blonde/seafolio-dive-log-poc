@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             if (error.message.includes("cancel") || error.message.includes("User")) {
                 console.log("User cancelled device scan")
-                window.UI.showStatus("Scan cancelled. Click 'Scan Real Device' to try again.", false)
+                window.UI.showStatus("Scan cancelled. Click 'Scan Bluetooth Devices' to try again.", false)
                 return
             }
 
