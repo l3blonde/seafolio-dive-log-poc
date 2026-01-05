@@ -5,7 +5,7 @@ Thomas More College, Mechelen
 Final Product Project  
 Prototype Testing: BLE Device Connection with Web Bluetooth API
 
-**Live POC:** https://seahorse-app-m2sil.ondigitalocean.app/
+**Live POC:** https://dive-log-app-w42fi.ondigitalocean.app
 
 ---
 
